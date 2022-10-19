@@ -5,7 +5,6 @@ Issues
 Marketplace
 Explore
 @NoahWantsDie
-derWunderfritz /
 Unity-FirebaseTest
 Public
 
@@ -18,14 +17,6 @@ Security
 
     Insights
 
-Unity-FirebaseTest/.gitattributes
-@derWunderfritz
-derWunderfritz Initial Commit
-Latest commit 18a01bb on Oct 8, 2021
-History
-1 contributor
-68 lines (61 sloc) 2.26 KB
-* text=auto
 
 # Unity files
 *.meta -text -merge=unityamlmerge

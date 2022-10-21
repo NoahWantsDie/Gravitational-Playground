@@ -15,6 +15,8 @@ public class Body : MonoBehaviour
 
     public SpriteRenderer SP;
     public bool notAttractOther;
+
+    public TrailRenderer trailRend;
     void FixedUpdate()
     {
         Body[] bodies = FindObjectsOfType<Body>();

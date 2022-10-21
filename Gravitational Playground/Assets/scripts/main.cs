@@ -40,6 +40,7 @@ public class main : MonoBehaviour
     public List<GameObject> particles = new List<GameObject>();
 
     public bool linin;
+    public bool trailToggle;
 
     //tool states
     public string ToolState;
@@ -55,6 +56,7 @@ public class main : MonoBehaviour
     public GameObject CircleObj2;
     public Toggle togFocus;
     public Toggle togOrb;
+    public Toggle togTrl;
     public GameObject MassCenterObj;
     public void PlanetPlace()
     {
@@ -73,6 +75,12 @@ public class main : MonoBehaviour
 
         ToolState = "OrbitPlacer";
 
+    }
+    public void ToggleTrail()
+    {
+
+
+        trailToggle = !trailToggle;
     }
     // Start is called before the first frame update
     void Start()
@@ -104,6 +112,7 @@ public class main : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         Time.timeScale = TimeStep;
         Time.fixedDeltaTime = this.fixedDeltaTime * Time.timeScale;
         if (linin && (ToolState == "OrbitPlacer"))
@@ -132,6 +141,7 @@ public class main : MonoBehaviour
             Vector2 diff = direction.normalized;
             float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
             MassCenterObj.transform.eulerAngles = new Vector3(0f, 0f, rot_z - 90);
+            MassCenterObj.transform.localScale = new Vector3(radius/10, radius / 10, 1);
         }
         if (Input.GetMouseButtonUp(0) && linin && (ToolState == "OrbitPlacer"))
         {
@@ -139,18 +149,18 @@ public class main : MonoBehaviour
             Body orbitTargetScript = bOne.GetComponent<Body>();
             float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
             
-            float OrbitSpeed = CalculateVel(orbitTargetScript.G, orbitTargetScript.mass, radius);
-            //float OrbitSpeedP = CalculateVel(orbitTargetScript.G, newMass, radius);
-            //float OrbitSpeedOrbiter = ((OrbitSpeed)* CircularOrbitThing(orbitTargetScript.mass, newMass));
-            //float OrbitSpeedParent = ((OrbitSpeedP)* CircularOrbitThing(newMass, orbitTargetScript.mass));
+            float OrbitSpeed = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(orbitTargetScript.mass,2))) / (radius * (newMass + orbitTargetScript.mass)));
+            float OrbitSpeedP = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(newMass, 2))) / (radius * (newMass + orbitTargetScript.mass)));
+            float OrbitSpeedOrbiter = OrbitSpeed;
+            float OrbitSpeedParent = OrbitSpeedP;
 
-            
-            Vector2 NewOrbitVelOrbiter = new Vector2(direction.y, -direction.x).normalized * OrbitSpeed;
-            //Vector2 NewOrbitVelParent = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedParent;
+
+            Vector2 NewOrbitVelOrbiter = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedOrbiter;
+            Vector2 NewOrbitVelParent = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedParent;
             SpawnNewBody(mousePosWorld.x, mousePosWorld.y, NewOrbitVelOrbiter.x + orbitTargetScript.rb.velocity.x, NewOrbitVelOrbiter.y + orbitTargetScript.rb.velocity.y, newMass, false);
 
             
-            //orbitTargetScript.rb.velocity -= NewOrbitVelParent;
+            orbitTargetScript.rb.velocity -= NewOrbitVelParent;
             line.SetPosition(0, new Vector3(0, 0, 0));
             line.SetPosition(1, new Vector3(0, 0, 0));
             line.enabled = false;
@@ -204,6 +214,14 @@ public class main : MonoBehaviour
         {
             CamScript.focused = false;
         }
+        if (trailToggle)
+        {
+            togTrl.isOn = true;
+        }
+        else
+        {
+            togTrl.isOn = false;
+        }
         massTxt.text = "New Mass : " + newMass.ToString();
         timeTxt.text = "TimeScale : " + TimeStep.ToString();
         CamScript.focusedObject = focusObj;
@@ -212,7 +230,8 @@ public class main : MonoBehaviour
         dragClickForce = mouseDownPoint - mousePosWorld;
         slingShotPoint = (mouseDownPoint - mousePosWorld) + mouseDownPoint;
         
-        
+
+
         if (ToolState == "PlanetPlacer")
         {
             line.SetPosition(0, mouseDownPoint);
@@ -222,6 +241,7 @@ public class main : MonoBehaviour
                 if (!usingSlider)
                 {
                     mouseDownPoint = mousePosWorld;
+                    
                     mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                     slingShotPoint = (mouseDownPoint - mousePosWorld) + mouseDownPoint;
 
@@ -248,6 +268,7 @@ public class main : MonoBehaviour
                 }
 
             }
+            
         }
         
         if (Input.GetKeyDown(KeyCode.F))
@@ -268,7 +289,10 @@ public class main : MonoBehaviour
             line.enabled = false;
             circleScript.lineRenderer.enabled = false;
         }
-            
+        line.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
+        circleScript.lineRenderer.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
+        circleScript2.lineRenderer.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
+        MassCenterObj.GetComponent<LineRenderer>().SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
 
         for (int i = 0; i < bodies.Count; i++)
         {
@@ -282,7 +306,14 @@ public class main : MonoBehaviour
                     var b1Script = b1.GetComponent<Body>();
                     var b2Script = b2.GetComponent<Body>();
                     var distanceToMouse = Mathf.Pow(Mathf.Pow((b1.transform.position.x - mousePosWorld.x), 2) + Mathf.Pow((b1.transform.position.y - mousePosWorld.y), 2), 0.5f);
-
+                    if (trailToggle)
+                    {
+                        b1Script.trailRend.emitting = true;
+                    }
+                    else
+                    {
+                        b1Script.trailRend.emitting = false;
+                    }
                     var PointDistance = Mathf.Pow(Mathf.Pow((b1.transform.position.x - b2.transform.position.x),2)  + Mathf.Pow((b1.transform.position.y - b2.transform.position.y),2),0.5f);
                     if((b1Script.notAttractOther == false)&& (b2Script.notAttractOther == false))
                     {

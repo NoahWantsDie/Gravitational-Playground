@@ -13,9 +13,12 @@ public class CameraMove : MonoBehaviour
     public float scrollSpeed = 1;
     public bool focused;
     public GameObject focusedObject;
+    public main mainScript;
+    public GameObject Main;
     private void Start()
     {
         ResetCamera = Camera.main.transform.position;
+        mainScript = Main.GetComponent<main>();
     }
 
 
@@ -43,14 +46,7 @@ public class CameraMove : MonoBehaviour
         }
 
         
-        if (Input.GetKey(KeyCode.X))
-        {
-            Camera.main.orthographicSize -= scrollSpeed * Time.deltaTime;
-        }
-        if (Input.GetKey(KeyCode.Z))
-        {
-            Camera.main.orthographicSize += scrollSpeed * Time.deltaTime;
-        }
+        
         if (Camera.main.orthographicSize <= 1)
         {
             Camera.main.orthographicSize = 1;
@@ -88,10 +84,28 @@ public class CameraMove : MonoBehaviour
         }
 
     }
+    public float maxZoom = 10;
+    public float minZoom = 0.1f;
+    public float sensitivity = 0.1f;
+    public float speed = 30;
+    public float defaultzoom = 10;
+    public float ZoomPercent;
+    public float targetZoom = 10;
     void FixedUpdate()
     {
+        if (Input.GetKey(KeyCode.Z))
+        {
+            Camera.main.orthographicSize += ((scrollSpeed + (Camera.main.orthographicSize/10)) * Time.deltaTime) / mainScript.TimeStep;
+        }
+
+        if (Input.GetKey(KeyCode.X))
+        {
+
+            Camera.main.orthographicSize -= ((scrollSpeed + (Camera.main.orthographicSize / 10)) * Time.deltaTime) / mainScript.TimeStep;
+        }
         
-        
-        
+       
+
+
     }
 }

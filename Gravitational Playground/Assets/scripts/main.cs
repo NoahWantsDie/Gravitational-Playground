@@ -216,6 +216,10 @@ public class main : MonoBehaviour
         {
             PlanetPlace();
         }
+        if (Input.GetKeyDown(KeyCode.V))
+        {
+            OrbitPlace();
+        }
         if (Input.GetKeyDown(KeyCode.B))
         {
             newMass = newMass / 2;
@@ -232,13 +236,14 @@ public class main : MonoBehaviour
             Vector2 direction = new Vector2(bOne.transform.position.x, bOne.transform.position.y) - mousePosWorld;
             Body orbitTargetScript1 = bOne.GetComponent<Body>();
             mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            MassCenterObj.transform.position = GetMassCenter(bOne.transform.position, mousePosWorld, orbitTargetScript1.mass, newMass);
 
-            float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
-            circleScript.DrawPolygon(30, radius, bOne.transform.position, 0.1f, 0.1f);
+            float radius = Vector3.Distance(MassCenterObj.transform.position, mousePosWorld);
+            circleScript.DrawPolygon(30, radius, MassCenterObj.transform.position, 0.1f, 0.1f);
             circleScript2.DrawPolygon(30, Mathf.Sqrt(newMass / Mathf.PI) / 2, mousePosWorld, 0.1f, 0.1f);
             line.SetPosition(0, bOne.transform.position);
             line.SetPosition(1, mousePosWorld);
-            MassCenterObj.transform.position = GetMassCenter(bOne.transform.position, mousePosWorld, orbitTargetScript1.mass, newMass);
+            
             line.enabled = true;
             if (usingSlider)
             {

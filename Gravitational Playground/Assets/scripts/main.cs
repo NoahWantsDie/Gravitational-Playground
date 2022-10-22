@@ -58,6 +58,7 @@ public class main : MonoBehaviour
     public Toggle togOrb;
     public Toggle togTrl;
     public GameObject MassCenterObj;
+    
     public void PlanetPlace()
     {
 
@@ -93,6 +94,7 @@ public class main : MonoBehaviour
         bodies.Add(sun);
         particles.Add(particle);
         MassCenterObj.GetComponent<LineRenderer>().enabled = false;
+        mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
     }
     void Awake()
     {
@@ -110,80 +112,17 @@ public class main : MonoBehaviour
         focusObj = fo;
     }
     // Update is called once per frame
+    public Vector2 SpawnPos;
     void Update()
     {
-        
+        CamScript.focusedObject = focusObj;
+        mousePos = Input.mousePosition;
+        mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        dragClickForce = SpawnPos - mousePosWorld;
+        slingShotPoint = (SpawnPos - mousePosWorld) + SpawnPos;
         Time.timeScale = TimeStep;
         Time.fixedDeltaTime = this.fixedDeltaTime * Time.timeScale;
-        if (linin && (ToolState == "OrbitPlacer"))
-        {
-            Vector2 direction = new Vector2(bOne.transform.position.x, bOne.transform.position.y) - mousePosWorld;
-            Body orbitTargetScript1 = bOne.GetComponent<Body>();
-            mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
-            circleScript.DrawPolygon(30, radius, bOne.transform.position, 0.1f, 0.1f);
-            circleScript2.DrawPolygon(30, Mathf.Sqrt(newMass / Mathf.PI)/2, mousePosWorld, 0.1f, 0.1f);
-            line.SetPosition(0, bOne.transform.position);
-            line.SetPosition(1, mousePosWorld);
-            MassCenterObj.transform.position = GetMassCenter(bOne.transform.position, mousePosWorld, orbitTargetScript1.mass,newMass);
-            line.enabled = true;
-            if (usingSlider)
-            {
-                circleScript.lineRenderer.enabled = false;
-                circleScript2.lineRenderer.enabled = false;
-            }
-            else
-            {
-                circleScript.lineRenderer.enabled = true;
-                circleScript2.lineRenderer.enabled = true;
-            }
-            MassCenterObj.GetComponent<LineRenderer>().enabled = true;
-            Vector2 diff = direction.normalized;
-            float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
-            MassCenterObj.transform.eulerAngles = new Vector3(0f, 0f, rot_z - 90);
-            MassCenterObj.transform.localScale = new Vector3(radius/10, radius / 10, 1);
-        }
-        if (Input.GetMouseButtonUp(0) && linin && (ToolState == "OrbitPlacer"))
-        {
-            Vector2 direction = new Vector2(bOne.transform.position.x, bOne.transform.position.y) - mousePosWorld;
-            Body orbitTargetScript = bOne.GetComponent<Body>();
-            float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
-            
-            float OrbitSpeed = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(orbitTargetScript.mass,2))) / (radius * (newMass + orbitTargetScript.mass)));
-            float OrbitSpeedP = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(newMass, 2))) / (radius * (newMass + orbitTargetScript.mass)));
-            float OrbitSpeedOrbiter = OrbitSpeed;
-            float OrbitSpeedParent = OrbitSpeedP;
-
-
-            Vector2 NewOrbitVelOrbiter = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedOrbiter;
-            Vector2 NewOrbitVelParent = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedParent;
-            SpawnNewBody(mousePosWorld.x, mousePosWorld.y, NewOrbitVelOrbiter.x + orbitTargetScript.rb.velocity.x, NewOrbitVelOrbiter.y + orbitTargetScript.rb.velocity.y, newMass, false);
-
-            
-            orbitTargetScript.rb.velocity -= NewOrbitVelParent;
-            line.SetPosition(0, new Vector3(0, 0, 0));
-            line.SetPosition(1, new Vector3(0, 0, 0));
-            line.enabled = false;
-            linin = false;
-            MassCenterObj.GetComponent<LineRenderer>().enabled = false;
-        }
-        if(ToolState != "OrbitPlacer")
-        {
-            linin = false;
-        }
-        else
-        {
-            if (!linin)
-            {
-                circleScript2.lineRenderer.enabled = false;
-            }
-        }
-        if (!linin)
-        {
-            
-            circleScript.lineRenderer.enabled = false;
-            
-        }
+        
         if (ToolState == "PlanetPlacer")
         {
             togPlanet.isOn = true;
@@ -222,45 +161,43 @@ public class main : MonoBehaviour
         {
             togTrl.isOn = false;
         }
-        massTxt.text = "New Mass : " + newMass.ToString();
+        massTxt.text = "New Mass : " + newMass;
         timeTxt.text = "TimeScale : " + TimeStep.ToString();
-        CamScript.focusedObject = focusObj;
-        mousePos = Input.mousePosition;
-        mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-        dragClickForce = mouseDownPoint - mousePosWorld;
-        slingShotPoint = (mouseDownPoint - mousePosWorld) + mouseDownPoint;
+
+
+
         
-
-
         if (ToolState == "PlanetPlacer")
         {
-            line.SetPosition(0, mouseDownPoint);
+            line.SetPosition(0, SpawnPos);
             line.SetPosition(1, slingShotPoint);
             if (Input.GetMouseButtonDown(0))
             {
                 if (!usingSlider)
                 {
-                    mouseDownPoint = mousePosWorld;
-                    
                     mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-                    slingShotPoint = (mouseDownPoint - mousePosWorld) + mouseDownPoint;
+                    SpawnPos = mousePosWorld;
+                    
+                    slingShotPoint = (SpawnPos - mousePosWorld) + SpawnPos;
 
-                    line.SetPosition(0, mouseDownPoint);
-                    line.SetPosition(1, slingShotPoint);
+                    
                     circleScript2.DrawPolygon(30, Mathf.Sqrt(newMass / Mathf.PI) / 2, mousePosWorld, 0.1f, 0.1f);
                     circleScript2.lineRenderer.enabled = true;
+
                     line.enabled = true;
+                    line.SetPosition(0, SpawnPos);
+                    line.SetPosition(1, slingShotPoint);
                 }
 
-                //SpawnNewBody(mousePosWorld.x, mousePosWorld.y, 0, 0, 10);
-                //Debug.Log("clicked");
+                
             }
             if (Input.GetMouseButtonUp(0))
             {
                 if (!usingSlider && line.enabled)
                 {
-                    SpawnNewBody(mouseDownPoint.x, mouseDownPoint.y, dragClickForce.x, dragClickForce.y, newMass, false);
-                    Debug.Log("clicked");
+                    SpawnNewBody(SpawnPos.x, SpawnPos.y, dragClickForce.x, dragClickForce.y, newMass, false);
+                    
+                    //Debug.Log("clicked");
                     line.enabled = false;
                     circleScript2.lineRenderer.enabled = false;
                     line.SetPosition(0, new Vector3(0, 0, 0));
@@ -288,11 +225,93 @@ public class main : MonoBehaviour
         {
             line.enabled = false;
             circleScript.lineRenderer.enabled = false;
+            circleScript2.lineRenderer.enabled = false;
         }
-        line.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
-        circleScript.lineRenderer.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
-        circleScript2.lineRenderer.SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
-        MassCenterObj.GetComponent<LineRenderer>().SetWidth(Camera.main.orthographicSize / 100, Camera.main.orthographicSize / 100);
+        if (linin && (ToolState == "OrbitPlacer"))
+        {
+            Vector2 direction = new Vector2(bOne.transform.position.x, bOne.transform.position.y) - mousePosWorld;
+            Body orbitTargetScript1 = bOne.GetComponent<Body>();
+            mousePosWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+            float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
+            circleScript.DrawPolygon(30, radius, bOne.transform.position, 0.1f, 0.1f);
+            circleScript2.DrawPolygon(30, Mathf.Sqrt(newMass / Mathf.PI) / 2, mousePosWorld, 0.1f, 0.1f);
+            line.SetPosition(0, bOne.transform.position);
+            line.SetPosition(1, mousePosWorld);
+            MassCenterObj.transform.position = GetMassCenter(bOne.transform.position, mousePosWorld, orbitTargetScript1.mass, newMass);
+            line.enabled = true;
+            if (usingSlider)
+            {
+                circleScript.lineRenderer.enabled = false;
+                circleScript2.lineRenderer.enabled = false;
+            }
+            else
+            {
+                circleScript.lineRenderer.enabled = true;
+                circleScript2.lineRenderer.enabled = true;
+            }
+            MassCenterObj.GetComponent<LineRenderer>().enabled = true;
+            Vector2 diff = direction.normalized;
+            float rot_z = Mathf.Atan2(diff.y, diff.x) * Mathf.Rad2Deg;
+            MassCenterObj.transform.eulerAngles = new Vector3(0f, 0f, rot_z - 90);
+            MassCenterObj.transform.localScale = new Vector3(radius / 10, radius / 10, 1);
+        }
+        if (Input.GetMouseButtonUp(0) && linin && (ToolState == "OrbitPlacer"))
+        {
+            SpawnPos = mousePosWorld;
+            Vector2 direction = new Vector2(bOne.transform.position.x, bOne.transform.position.y) - mousePosWorld;
+            Body orbitTargetScript = bOne.GetComponent<Body>();
+            float radius = Vector3.Distance(bOne.transform.position, mousePosWorld);
+
+            float OrbitSpeed = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(orbitTargetScript.mass, 2))) / (radius * (newMass + orbitTargetScript.mass)));
+            float OrbitSpeedP = Mathf.Sqrt((orbitTargetScript.G * (Mathf.Pow(newMass, 2))) / (radius * (newMass + orbitTargetScript.mass)));
+            float OrbitSpeedOrbiter = OrbitSpeed;
+            float OrbitSpeedParent = OrbitSpeedP;
+
+
+            Vector2 NewOrbitVelOrbiter = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedOrbiter;
+            Vector2 NewOrbitVelParent = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedParent;
+            SpawnNewBody(mousePosWorld.x, mousePosWorld.y, NewOrbitVelOrbiter.x + orbitTargetScript.rb.velocity.x, NewOrbitVelOrbiter.y + orbitTargetScript.rb.velocity.y, newMass, false);
+
+
+            orbitTargetScript.rb.velocity -= NewOrbitVelParent;
+            line.SetPosition(0, new Vector3(0, 0, 0));
+            line.SetPosition(1, new Vector3(0, 0, 0));
+            line.enabled = false;
+            linin = false;
+            MassCenterObj.GetComponent<LineRenderer>().enabled = false;
+        }
+        if (ToolState != "OrbitPlacer")
+        {
+            linin = false;
+        }
+        else
+        {
+            if (!linin)
+            {
+                circleScript2.lineRenderer.enabled = false;
+            }
+        }
+        if (!linin)
+        {
+
+            circleScript.lineRenderer.enabled = false;
+
+        }
+        
+        line.startWidth = Camera.main.orthographicSize / 100;
+        line.endWidth = Camera.main.orthographicSize / 100;
+
+        circleScript.lineRenderer.startWidth = Camera.main.orthographicSize / 100;
+        circleScript.lineRenderer.endWidth = Camera.main.orthographicSize / 100;
+
+        circleScript2.lineRenderer.startWidth = Camera.main.orthographicSize / 100;
+        circleScript2.lineRenderer.endWidth = Camera.main.orthographicSize / 100;
+
+        MassCenterObj.GetComponent<LineRenderer>().startWidth = Camera.main.orthographicSize / 100;
+        MassCenterObj.GetComponent<LineRenderer>().endWidth = Camera.main.orthographicSize / 100;
+
+
 
         for (int i = 0; i < bodies.Count; i++)
         {
@@ -400,6 +419,7 @@ public class main : MonoBehaviour
             }
         }
     }
+    public Vector2 NewPos;
     void SpawnNewBody(float x, float y, float xv, float yv, float m,bool isFocused)
     {
         
@@ -409,10 +429,12 @@ public class main : MonoBehaviour
         Body newPlanetScript = newPlanet.GetComponent<Body>();
         newPlanetScript.locked = false;
         newPlanetScript.rb.bodyType = RigidbodyType2D.Dynamic;
-        newPlanet.transform.position = new Vector2(x, y);
-        newPlanetScript.mass = m;
+        newPlanet.transform.position = new Vector3(x, y,0);
+        newPlanetScript.transform.position = new Vector3(x, y, 0);
+        NewPos = new Vector2(x, y);
+        Debug.Log(NewPos + "mainScrpt");
 
-        
+        newPlanetScript.mass = m;
 
         if (isFocused)
             focusObj = newPlanet;
@@ -430,7 +452,7 @@ public class main : MonoBehaviour
         Body newParticleScript = newParticle.GetComponent<Body>();
         newParticleScript.locked = false;
         newParticleScript.rb.bodyType = RigidbodyType2D.Dynamic;
-        newParticleScript.transform.position = new Vector2(x, y);
+        newParticle.transform.position = new Vector2(x, y);
         newParticleScript.mass = m;
 
 

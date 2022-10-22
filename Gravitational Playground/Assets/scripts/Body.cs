@@ -17,6 +17,8 @@ public class Body : MonoBehaviour
     public bool notAttractOther;
 
     public TrailRenderer trailRend;
+    public GameObject mainObject;
+    public main MainScript;
     void FixedUpdate()
     {
         Body[] bodies = FindObjectsOfType<Body>();
@@ -81,11 +83,15 @@ public class Body : MonoBehaviour
     {
         rb.AddForce(InitialVel*10);
         SP = gameObject.GetComponent<SpriteRenderer>();
+        MainScript = mainObject.GetComponent<main>();
+        transform.position = MainScript.NewPos;
+        Debug.Log(MainScript.NewPos + "body Scrpt");
     }
 
     // Update is called once per frame
     void Update()
     {
+        
         if ((mass < 60))
         {
             planetType = "Terrestrial";

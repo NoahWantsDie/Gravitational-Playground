@@ -24,6 +24,7 @@ public class main : MonoBehaviour
     public CameraMove CamScript;
     public drawCircle circleScript;
     public drawCircle circleScript2;
+    public drawCircle circleScript3;
 
     public LineRenderer line;
     private Vector3[] points;
@@ -54,6 +55,7 @@ public class main : MonoBehaviour
     GameObject bOne;
     public GameObject CircleObj;
     public GameObject CircleObj2;
+    public GameObject CircleObj3;
     public Toggle togFocus;
     public Toggle togOrb;
     public Toggle togTrl;
@@ -91,6 +93,7 @@ public class main : MonoBehaviour
         CamScript = Camera.main.GetComponent<CameraMove>();
         circleScript = CircleObj.GetComponent<drawCircle>();
         circleScript2 = CircleObj2.GetComponent<drawCircle>();
+        circleScript3 = CircleObj3.GetComponent<drawCircle>();
         bodies.Add(sun);
         particles.Add(particle);
         MassCenterObj.GetComponent<LineRenderer>().enabled = false;
@@ -230,6 +233,7 @@ public class main : MonoBehaviour
             line.enabled = false;
             circleScript.lineRenderer.enabled = false;
             circleScript2.lineRenderer.enabled = false;
+            circleScript3.lineRenderer.enabled = false;
         }
         if (linin && (ToolState == "OrbitPlacer"))
         {
@@ -239,7 +243,9 @@ public class main : MonoBehaviour
             MassCenterObj.transform.position = GetMassCenter(bOne.transform.position, mousePosWorld, orbitTargetScript1.mass, newMass);
 
             float radius = Vector3.Distance(MassCenterObj.transform.position, mousePosWorld);
+            float radius2 = Vector3.Distance(MassCenterObj.transform.position, bOne.transform.position);
             circleScript.DrawPolygon(30, radius, MassCenterObj.transform.position, 0.1f, 0.1f);
+            circleScript3.DrawPolygon(30, radius2, MassCenterObj.transform.position, 0.1f, 0.1f);
             circleScript2.DrawPolygon(30, Mathf.Sqrt(newMass / Mathf.PI) / 2, mousePosWorld, 0.1f, 0.1f);
             line.SetPosition(0, bOne.transform.position);
             line.SetPosition(1, mousePosWorld);
@@ -249,11 +255,13 @@ public class main : MonoBehaviour
             {
                 circleScript.lineRenderer.enabled = false;
                 circleScript2.lineRenderer.enabled = false;
+                circleScript3.lineRenderer.enabled = false;
             }
             else
             {
                 circleScript.lineRenderer.enabled = true;
                 circleScript2.lineRenderer.enabled = true;
+                circleScript3.lineRenderer.enabled = true;
             }
             MassCenterObj.GetComponent<LineRenderer>().enabled = true;
             Vector2 diff = direction.normalized;
@@ -295,6 +303,7 @@ public class main : MonoBehaviour
             if (!linin)
             {
                 circleScript2.lineRenderer.enabled = false;
+                circleScript3.lineRenderer.enabled = false;
             }
         }
         if (!linin)
@@ -312,6 +321,9 @@ public class main : MonoBehaviour
 
         circleScript2.lineRenderer.startWidth = Camera.main.orthographicSize / 100;
         circleScript2.lineRenderer.endWidth = Camera.main.orthographicSize / 100;
+
+        circleScript3.lineRenderer.startWidth = Camera.main.orthographicSize / 100;
+        circleScript3.lineRenderer.endWidth = Camera.main.orthographicSize / 100;
 
         MassCenterObj.GetComponent<LineRenderer>().startWidth = Camera.main.orthographicSize / 100;
         MassCenterObj.GetComponent<LineRenderer>().endWidth = Camera.main.orthographicSize / 100;

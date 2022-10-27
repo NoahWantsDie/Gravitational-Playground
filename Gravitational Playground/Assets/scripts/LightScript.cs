@@ -20,7 +20,7 @@ public class LightScript : MonoBehaviour
     void Update()
     {
         sr.color = ParentBody.GetComponent<SpriteRenderer>().color;
-        if (ParentScript.planetType == "Star")
+        if ((ParentScript.mass >= 200))
         {
             sr.enabled = true;
         }

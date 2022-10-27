@@ -49,6 +49,7 @@ public class main : MonoBehaviour
     bool p;
 
     public Toggle togPlanet;
+    public Toggle togRing;
 
     bool f;
 
@@ -59,8 +60,11 @@ public class main : MonoBehaviour
     public Toggle togFocus;
     public Toggle togOrb;
     public Toggle togTrl;
-    public GameObject MassCenterObj;
     
+    public GameObject MassCenterObj;
+    public bool setUpFrstRng = true;
+    public bool setUpSecdRng = false;
+
     public void PlanetPlace()
     {
 
@@ -79,6 +83,7 @@ public class main : MonoBehaviour
         ToolState = "OrbitPlacer";
 
     }
+    
     public void ToggleTrail()
     {
 
@@ -134,6 +139,7 @@ public class main : MonoBehaviour
         {
             togPlanet.isOn = false;
         }
+
         if (ToolState == "OrbitPlacer")
         {
             togOrb.isOn = true;
@@ -151,7 +157,8 @@ public class main : MonoBehaviour
         {
             togFocus.isOn = false;
         }
-
+        
+        
         if (focusObj == null)
         {
             CamScript.focused = false;
@@ -167,9 +174,10 @@ public class main : MonoBehaviour
         massTxt.text = "New Mass : " + newMass;
         timeTxt.text = "TimeScale : " + TimeStep.ToString();
 
-
-
-        
+        if (linin && (ToolState == "RingPlacer"))
+        {
+            
+        }
         if (ToolState == "PlanetPlacer")
         {
             line.SetPosition(0, SpawnPos);
@@ -198,7 +206,7 @@ public class main : MonoBehaviour
             {
                 if (!usingSlider && line.enabled)
                 {
-                    SpawnNewBody(SpawnPos.x, SpawnPos.y, dragClickForce.x, dragClickForce.y, newMass, false);
+                    SpawnNewBody(SpawnPos.x, SpawnPos.y, dragClickForce.x, dragClickForce.y, newMass, false,false);
                     
                     //Debug.Log("clicked");
                     line.enabled = false;
@@ -284,9 +292,9 @@ public class main : MonoBehaviour
 
             Vector2 NewOrbitVelOrbiter = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedOrbiter;
             Vector2 NewOrbitVelParent = new Vector2(direction.y, -direction.x).normalized * OrbitSpeedParent;
-            SpawnNewBody(mousePosWorld.x, mousePosWorld.y, NewOrbitVelOrbiter.x + orbitTargetScript.rb.velocity.x, NewOrbitVelOrbiter.y + orbitTargetScript.rb.velocity.y, newMass, false);
+            SpawnNewBody(mousePosWorld.x, mousePosWorld.y, NewOrbitVelOrbiter.x + orbitTargetScript.rb.velocity.x, NewOrbitVelOrbiter.y + orbitTargetScript.rb.velocity.y, newMass, false,false);
 
-
+            
             orbitTargetScript.rb.velocity -= NewOrbitVelParent;
             line.SetPosition(0, new Vector3(0, 0, 0));
             line.SetPosition(1, new Vector3(0, 0, 0));
@@ -294,7 +302,7 @@ public class main : MonoBehaviour
             linin = false;
             MassCenterObj.GetComponent<LineRenderer>().enabled = false;
         }
-        if (ToolState != "OrbitPlacer")
+        if ((ToolState != "OrbitPlacer") && (ToolState != "RingPlacer"))
         {
             linin = false;
         }
@@ -338,20 +346,23 @@ public class main : MonoBehaviour
                 {
                     var b1 = bodies[i];
                     var b2 = bodies[j];
-                    
+
                     var b1Script = b1.GetComponent<Body>();
                     var b2Script = b2.GetComponent<Body>();
                     var distanceToMouse = Mathf.Pow(Mathf.Pow((b1.transform.position.x - mousePosWorld.x), 2) + Mathf.Pow((b1.transform.position.y - mousePosWorld.y), 2), 0.5f);
                     if (trailToggle)
                     {
+                        
                         b1Script.trailRend.emitting = true;
                     }
                     else
                     {
                         b1Script.trailRend.emitting = false;
+                        b1Script.trailRend.Clear();
+
                     }
-                    var PointDistance = Mathf.Pow(Mathf.Pow((b1.transform.position.x - b2.transform.position.x),2)  + Mathf.Pow((b1.transform.position.y - b2.transform.position.y),2),0.5f);
-                    if((b1Script.notAttractOther == false)&& (b2Script.notAttractOther == false))
+                    var PointDistance = Mathf.Pow(Mathf.Pow((b1.transform.position.x - b2.transform.position.x), 2) + Mathf.Pow((b1.transform.position.y - b2.transform.position.y), 2), 0.5f);
+                    if ((b1Script.notAttractOther == false) && (b2Script.notAttractOther == false))
                     {
                         if (PointDistance < ((b2Script.radius + b1Script.radius) / 2))
                         {
@@ -366,10 +377,14 @@ public class main : MonoBehaviour
                             if (b1Script.mass >= b2Script.mass)
                             {
                                 b1Script.transform.position = new Vector2(NewPointX, NewPointY);
-                                b1Script.transform.position = new Vector2(NewPointX, NewPointY);
+                                
                                 b1Script.rb.velocity = new Vector2(NewVelX, NewVelY);
                                 b1Script.mass = b1Script.mass + b2Script.mass;
-                                
+                                GameObject Explosion = Instantiate(explosion);
+                                explsion_particle particleScript = Explosion.GetComponent<explsion_particle>();
+                                particleScript.radius = b1Script.radius/10;
+                                Explosion.SetActive(true);
+                                Explosion.transform.position = b2.transform.position;
                                 Destroy(b2);
                                 bodies.Remove(b2);
                                 
@@ -377,13 +392,18 @@ public class main : MonoBehaviour
                             else
                             {
                                 b2Script.transform.position = new Vector2(NewPointX, NewPointY);
-                                b2Script.transform.position = new Vector2(NewPointX, NewPointY);
+                                
 
                                 b2Script.rb.velocity = new Vector2(NewVelX, NewVelY);
                                 b2Script.mass = b1Script.mass + b2Script.mass;
-                                
+                                GameObject Explosion = Instantiate(explosion);
+                                explsion_particle particleScript = Explosion.GetComponent<explsion_particle>();
+                                particleScript.radius = b1Script.radius/10;
+                                Explosion.SetActive(true);
+                                Explosion.transform.position = b1.transform.position;
                                 Destroy(b1);
                                 bodies.Remove(b1);
+                               
                             }
 
 
@@ -415,7 +435,7 @@ public class main : MonoBehaviour
                                 }
                             }
                         }
-                        if (ToolState == "OrbitPlacer")
+                        if ((ToolState == "OrbitPlacer") || (ToolState == "RingPlacer"))
                         {
                             
                             if ((distanceToMouse <= b1Script.radius) && (Input.GetMouseButtonDown(0)))
@@ -437,7 +457,7 @@ public class main : MonoBehaviour
         }
     }
     public Vector2 NewPos;
-    void SpawnNewBody(float x, float y, float xv, float yv, float m,bool isFocused)
+    void SpawnNewBody(float x, float y, float xv, float yv, float m,bool isFocused,bool IsAstroid)
     {
         
         //Debug.Log("planet spawned at " + new Vector2(x,y));
@@ -455,28 +475,42 @@ public class main : MonoBehaviour
 
         if (isFocused)
             focusObj = newPlanet;
+        if (IsAstroid)
+        {
+            newPlanetScript.notAttractOther = true;
+        }
+        else
+        {
+            newPlanetScript.notAttractOther = false;
+        }
 
         newPlanetScript.rb.velocity = new Vector2(xv, yv);
         bodies.Add(newPlanet);
         
     }
-    void SpawnNewParticle(float x, float y, float xv, float yv, float m, bool isFocused)
+    void SpawnAsteroid(float mass,float min, float max, float objx, float objy, int amount,GameObject parent)
     {
+        
+        for (int i = 0; i < amount; i++)
+        {
 
-        //Debug.Log("planet spawned at " + new Vector2(x,y));
-        GameObject newParticle = Instantiate(particle);
-        newParticle.SetActive(true);
-        Body newParticleScript = newParticle.GetComponent<Body>();
-        newParticleScript.locked = false;
-        newParticleScript.rb.bodyType = RigidbodyType2D.Dynamic;
-        newParticle.transform.position = new Vector2(x, y);
-        newParticleScript.mass = m;
+            Body AstroidScript = parent.GetComponent<Body>();
+            var rDist = Random.Range(min, max);
+            var randAngle = Random.Range(0, 360);
+            var angleRad = (randAngle * Mathf.PI) / 180;
+            var orbitAngle = angleRad - 1.5708f;
+            
 
-
-
-
-        newParticleScript.rb.velocity = new Vector2(xv, yv);
-        particles.Add(newParticle);
+            var vectX = rDist * Mathf.Cos(angleRad);
+            var vectY = rDist * Mathf.Sin(angleRad);
+            var randx = vectX + objx;
+            var randy = vectY + objy;
+            Vector2 direction = new Vector2(parent.transform.position.x, parent.transform.position.x) - new Vector2(randx, randy);
+            var OrbitVel = CalculateVel(AstroidScript.G, AstroidScript.mass, rDist);
+            var orbitVelVector = new Vector2(direction.y,-direction.x).normalized * OrbitVel;
+            SpawnNewBody(randx, randy, orbitVelVector.x, orbitVelVector.y, mass, false, true);
+            
+        }
     }
     void OnMouseDown()
     {
@@ -503,28 +537,7 @@ public class main : MonoBehaviour
     {
         usingSlider = false;
     }
-    public void createRingObj(GameObject parentObj,float minDist,float maxDist,float ammount)
-    {
-        for (int i = 0; i < ammount; i++)
-        {
-            Body parentObjScript = parentObj.GetComponent<Body>();
-            var dist = Random.Range(minDist, maxDist); //random(minDist,maxDist);
-                                                       //print(minDist +', '+maxDist);
-            var angledeg = Random.Range(0, 360);
-            var angleRad = (angledeg * Mathf.PI) / 180;
-            var orbitAngle = angleRad - 1.5708f;
-            var vectX = dist * Mathf.Cos(angleRad);
-            var vectY = dist * Mathf.Sin(angleRad);
-
-            var OrbVel = CalculateVel(parentObjScript.G, parentObjScript.mass, dist);
-            var velocX = OrbVel * Mathf.Cos(orbitAngle);
-            var velocY = OrbVel * Mathf.Sin(orbitAngle);
-            //print(OrbVel);
-            SpawnNewParticle(parentObj.transform.position.x, parentObj.transform.position.x, velocX + parentObjScript.rb.velocity.x, velocY + parentObjScript.rb.velocity.y, 1, false);
-        }
-        
-        //print(parentObj.x + vectX );
-    }
+   
     float CalculateVel(float g, float m, float r)
     {
         var v = Mathf.Sqrt((g * m) / r);

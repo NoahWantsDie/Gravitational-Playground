@@ -52,7 +52,7 @@ public class Body : MonoBehaviour
         rb.mass = mass;
         radius = Mathf.Sqrt(mass/Mathf.PI);
         transform.localScale = new Vector2(radius,radius);
-        //positioning
+        
 
     }
     void Gravitate(Body objToAttract)
@@ -100,10 +100,31 @@ public class Body : MonoBehaviour
         {
             planetType = "GasGiant";
         }
-        else if (mass >= 200)
+        else if ((mass >= 200) && (mass < 700))
         {
-            planetType = "Star";
+            planetType = "Star: M";
         }
+        else if ((mass >= 700) && (mass < 1000))
+        {
+            planetType = "Star: K";
+        }
+        else if ((mass >= 1000) && (mass < 1500))
+        {
+            planetType = "Star: G";
+        }
+        else if ((mass >= 1500) && (mass < 2000))
+        {
+            planetType = "Star: F";
+        }
+        else if ((mass >= 2000) && (mass < 10000))
+        {
+            planetType = "Star: A";
+        }
+        else if ((mass >= 10000))
+        {
+            planetType = "Star: B";
+        }
+
 
         if (planetType == "Terrestrial")
         {
@@ -112,9 +133,29 @@ public class Body : MonoBehaviour
         {
             SP.color = new Color(0.549556f, 0.3852794f, 0.6981132f);
         }
-        else if(planetType == "Star")
+        else if (planetType == "Star: M")
         {
-            SP.color = new Color(0.9824101f, 1f, 0.75f);
+            SP.color = new Color(0.8207547f, 0.1465867f, 0.1122731f);
+        }
+        else if (planetType == "Star: K")
+        {
+            SP.color = new Color(1f, 0.4533608f, 0f);
+        }
+        else if(planetType == "Star: G")
+        {
+            SP.color = new Color(1f, 0.8952988f, 0.2783019f);
+        }
+        else if (planetType == "Star: F")
+        {
+            SP.color = new Color(1f, 0.9931104f, 0.7877358f);
+        }
+        else if (planetType == "Star: A")
+        {
+            SP.color = new Color(1f, 1f, 1f);
+        }
+        else if (planetType == "Star: B")
+        {
+            SP.color = new Color(0.8160377f, 1f, 1f);
         }
     }
 }

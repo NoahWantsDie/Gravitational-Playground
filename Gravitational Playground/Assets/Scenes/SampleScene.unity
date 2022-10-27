@@ -688,7 +688,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -257.6, y: -33.300915}
+  m_AnchoredPosition: {x: -257.6, y: -35.5}
   m_SizeDelta: {x: 2543.6067, y: 223.3957}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &339066619
@@ -1344,7 +1344,7 @@ MonoBehaviour:
   onValueChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!1 &519420028
 GameObject:
   m_ObjectHideFlags: 0
@@ -1640,7 +1640,7 @@ TrailRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: -1
-  m_Time: 3
+  m_Time: 8
   m_Parameters:
     serializedVersion: 3
     widthMultiplier: 1
@@ -1661,8 +1661,8 @@ TrailRenderer:
       m_RotationOrder: 4
     colorGradient:
       serializedVersion: 2
-      key0: {r: 1, g: 0, b: 0, a: 1}
-      key1: {r: 1, g: 0, b: 0, a: 1}
+      key0: {r: 1, g: 1, b: 1, a: 1}
+      key1: {r: 1, g: 1, b: 1, a: 1}
       key2: {r: 0, g: 0, b: 0, a: 0}
       key3: {r: 0, g: 0, b: 0, a: 0}
       key4: {r: 0, g: 0, b: 0, a: 0}
@@ -1678,7 +1678,7 @@ TrailRenderer:
       ctime6: 0
       ctime7: 0
       atime0: 0
-      atime1: 47417
+      atime1: 65535
       atime2: 65535
       atime3: 0
       atime4: 0
@@ -1687,7 +1687,7 @@ TrailRenderer:
       atime7: 0
       m_Mode: 0
       m_NumColorKeys: 2
-      m_NumAlphaKeys: 3
+      m_NumAlphaKeys: 2
     numCornerVertices: 0
     numCapVertices: 0
     alignment: 0
@@ -10424,7 +10424,7 @@ MonoBehaviour:
           m_StringArgument: 
           m_BoolArgument: 0
         m_CallState: 2
-  m_IsOn: 1
+  m_IsOn: 0
 --- !u!114 &1284462525
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -10543,6 +10543,7 @@ MonoBehaviour:
   trailToggle: 0
   ToolState: PlanetPlacer
   togPlanet: {fileID: 768669758}
+  togRing: {fileID: 0}
   CircleObj: {fileID: 1118509518}
   CircleObj2: {fileID: 1643191859}
   CircleObj3: {fileID: 352895231}
@@ -10550,6 +10551,8 @@ MonoBehaviour:
   togOrb: {fileID: 462111442}
   togTrl: {fileID: 1327226476}
   MassCenterObj: {fileID: 1124603586}
+  setUpFrstRng: 1
+  setUpSecdRng: 0
   SpawnPos: {x: 0, y: 0}
   NewPos: {x: -7, y: -7}
 --- !u!4 &1298197294
@@ -12607,7 +12610,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_Sprite: {fileID: -2413806693520163455, guid: a86470a33a6bf42c4b3595704624658b, type: 3}
-  m_Color: {r: 1, g: 0.9480301, b: 0.8066038, a: 1}
+  m_Color: {r: 1, g: 0.89529884, b: 0.2783019, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
